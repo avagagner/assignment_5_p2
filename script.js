@@ -1,29 +1,62 @@
-var mymap = L.map('mapid').setView([38.63775922635261, -90.28368046396037], 13);
-//https://a.tile.openstreetmap.org/{z}/{x}/{y}.png
-//'http://a.tile.stamen.com/toner/{z}/{x}/{y}.png'
-//https://wiki.openstreetmap.org/wiki/Tile_servers
-L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}', {
-	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-	subdomains: 'abcd',
-	minZoom: 1,
-	maxZoom: 16,
-	ext: 'jpg'
-}).addTo(mymap);
+    require([
+      "esri/WebScene",
+      "esri/views/SceneView",
+      "esri/Camera",
+	  "esri/widgets/Home",
+      "esri/widgets/Legend",
+      "esri/widgets/LayerList",
+      "dojo/domReady!"
+    ], function(WebScene, SceneView, Camera, Legend, LayerList, Home) {
+    
+      /*var map = new Map({
+        basemap: "streets",
+        ground: "world-elevation"
+      });*/
+      var scene = new WebScene({
+        portalItem:{
+         id:"8046207c1c214b5587230f5e5f8efc77" 
+        }
+      });
+      
+      var camera = new Camera({
+        position: [
+           -71.060217,// lon
+          42.382655, // lat
+          2500// elevation in meters
+        ],
+        tilt:45,
+        heading: 180
+      })
+      var view = new SceneView({
+        container: "viewDiv",
+        map: scene,
+        camera: camera
+    });
+	
+	var homeBtn = new Home({
+        view: view
+      });
+      // Add the home button to the top left corner of the view
+    view.ui.add(homeBtn, "top-left");
+view.when(function() {
+	
+          // get the first layer in the collection of operational layers in the WebMap
+          // when the resources in the MapView have loaded.
+        var featureLayer = scene.layers.getItemAt(1);
 
-var marker = L.marker([38.63672876590212, -90.24674730564345]).addTo(mymap);
+        var legend = new Legend({
+          view: view,
+          layerInfos: [{
+            layer: featureLayer,
+            title: "Major project buildings"
+          }]
+        });
+      
+   view.ui.add(legend, "bottom-right");
+   });
+      var layerList = new LayerList({
+  view: view
+});
+      view.ui.add(layerList, "bottom-right");
 
-var marker2 = L.marker([38.63816176328897, -90.25104626536422]).addTo(mymap);
-
-var marker3 = L.marker([38.661539699331904, -90.30894447950988]).addTo(mymap);
-
-var marker4 = L.marker([38.61714841986633, -90.27511168787689]).addTo(mymap);
-
-var marker5 = L.marker([38.64751484426265, -90.2744901289432]).addTo(mymap);
-
-
-
-marker.bindPopup("<b>Scottish Arms</b>.").openPopup();
-marker2.bindPopup("<b>Scarlett's Wine Bar</b>.").openPopup();
-marker3.bindPopup("<b>Mi Ranchito</b>.").openPopup();
-marker4.bindPopup("<b>Lorenzo's Trattoria</b>.").openPopup();
-marker4.bindPopup("<b>2Shae Cafe</b>.").openPopup();
+    });
